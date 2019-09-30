@@ -11,7 +11,7 @@
         </q-btn>
 
         <q-toolbar-title>
-          Quasar App
+          IT Helper System
         </q-toolbar-title>
 
         <q-btn stretch flat class="text-h6" label="修改密码" @click="modifyPassword = true"/>

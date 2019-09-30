@@ -285,7 +285,6 @@ export default {
         this.pagination.rowsNumber = resp.data.rowsNumber
       })
       service.get('/api/account/getDept').then(resp => {
-        console.log(resp)
         this.branchOptions = []
         this.easBranchOptions = []
         let arr = resp.data
