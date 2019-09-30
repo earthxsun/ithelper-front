@@ -75,6 +75,10 @@ export default {
             this.isShow = true
             this.errorMsg = resp.data.message
           }
+        }).catch(error => {
+          console.log(error.response.data)
+          this.isShow = true
+          this.errorMsg = error.response.data.message
         })
     }
   }
