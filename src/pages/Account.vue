@@ -1,31 +1,33 @@
 <template>
   <div class="q-pa-md">
     <q-card>
-      <q-card-section class="row q-gutter-sm">
-        <q-btn color="primary" icon="open_in_new" label="查看" size="md" rounded @click="view"/>
-        <q-btn color="primary" icon="add" label="新增" rounded @click="add" />
-        <q-btn color="primary" icon="edit" label="编辑" rounded @click="edit" :disable="editBtn"/>
-        <q-btn color="secondary" icon="done" label="完成提交" rounded @click="refer('已提交')" v-show="!referBtn" :disable="disableReferBtn"/>
-        <q-btn color="secondary" icon="done" label="取消提交" rounded @click="refer('暂存')" v-show="referBtn" :disable="disableReferBtn"/>
-        <q-btn color="secondary" icon="print" label="打印预览" rounded @click="printPdf" :disable="printBtn"/>
-        <q-btn color="positive" icon="how_to_reg" label="任务完成" rounded @click="refer('已完成')" :disable="finishBtn" v-show="showFinishBtn" v-has-permission="'管理员'"/>
-        <q-btn color="positive" icon="how_to_reg" label="取消完成" rounded @click="refer('已提交')" :disable="finishBtn" v-show="!showFinishBtn"/>
-        <q-btn color="red" icon="clear" label="作废申请" rounded @click="refer('作废')" :disable="invalidBtn" v-show="showInvalidBtn"/>
-        <q-btn color="red" icon="clear" label="取消作废" rounded @click="refer('暂存')" :disable="invalidBtn" v-show="!showInvalidBtn"/>
-        <q-btn color="info" icon="replay" label="重载数据" rounded @click="reloadAll"/>
-        <div class="absolute-right q-gutter-sm row" style="margin-right:50px;margin-top: 12px">
-          <q-select outlined dense bottom-slots v-model="searchWord" :options="searchOptions" style="width:120px" />
-          <q-input bottom-slots v-model="pagination.searchContent" v-if="searchWord.value === 'name'" placeholder="请输入搜索内容...." style="width:250px;" dense outlined>
+      <q-card-section class="q-gutter-sm">
+        <div class="row q-gutter-sm">
+          <q-btn color="primary" icon="open_in_new" label="查看" rounded @click="view"/>
+          <q-btn color="primary" icon="add" label="新增" rounded @click="add" />
+          <q-btn color="primary" icon="edit" label="编辑" rounded @click="edit" :disable="editBtn"/>
+          <q-btn color="secondary" icon="done" label="完成提交" rounded @click="refer('已提交')" v-show="!referBtn" :disable="disableReferBtn"/>
+          <q-btn color="secondary" icon="done" label="取消提交" rounded @click="refer('暂存')" v-show="referBtn" :disable="disableReferBtn"/>
+          <q-btn color="secondary" icon="print" label="打印预览" rounded @click="printPdf" :disable="printBtn"/>
+          <q-btn color="positive" icon="how_to_reg" label="任务完成" rounded @click="refer('已完成')" :disable="finishBtn" v-show="showFinishBtn" v-has-permission="'管理员'"/>
+          <q-btn color="positive" icon="how_to_reg" label="取消完成" rounded @click="refer('已提交')" :disable="finishBtn" v-show="!showFinishBtn"/>
+          <q-btn color="red" icon="clear" label="作废申请" rounded @click="refer('作废')" :disable="invalidBtn" v-show="showInvalidBtn"/>
+          <q-btn color="red" icon="clear" label="取消作废" rounded @click="refer('暂存')" :disable="invalidBtn" v-show="!showInvalidBtn"/>
+          <q-btn color="info" icon="replay" label="重载数据" rounded @click="reloadAll"/>
+        </div>
+        <div class="q-gutter-sm row" style="margin-right:50px;">
+          <q-select outlined rounded dense bottom-slots v-model="searchWord" :options="searchOptions" style="width:120px" />
+          <q-input bottom-slots v-model="pagination.searchContent" v-if="searchWord.value === 'name'" placeholder="请输入搜索内容...." style="width:250px;" dense rounded outlined>
             <template v-slot:after>
-              <q-btn outline icon="search" color="green"  @click="lookup"/>
+              <q-btn outline rounded icon="search" color="green"  @click="lookup"/>
             </template>
           </q-input>
-          <q-select bottom-slots outlined dense style="width:250px" v-show="showFixSearch" v-model="pagination.searchContent" :options="FixSearchOptions">
+          <q-select bottom-slots outlined rounded dense style="width:250px" v-show="showFixSearch" v-model="pagination.searchContent" :options="FixSearchOptions">
             <template v-slot:after>
-              <q-btn  outline icon="search" color="green"   @click="lookup"/>
+              <q-btn  outline rounded icon="search" color="green"   @click="lookup"/>
             </template>
           </q-select>
-          <q-input bottom-slots v-model="startDate" v-if="searchWord.value === 'date'" mask="date" :rules="['date']" dense outlined style="width: 180px">
+          <q-input bottom-slots v-model="startDate" v-if="searchWord.value === 'date'" mask="date" :rules="['date']" dense outlined rounded style="width: 180px">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy ref="qDateProxyStart" transition-show="scale" transition-hide="scale">
@@ -37,7 +39,7 @@
               <div >到</div>
             </template>
           </q-input>
-          <q-input bottom-slots v-model="endDate" v-if="searchWord.value === 'date'" mask="date" :rules="['date']" dense outlined style="width: 250px">
+          <q-input bottom-slots v-model="endDate" v-if="searchWord.value === 'date'" mask="date" :rules="['date']" dense outlined rounded style="width: 250px">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy ref="qDateProxyEnd" transition-show="scale" transition-hide="scale">
@@ -46,7 +48,7 @@
               </q-icon>
             </template>
             <template v-slot:after>
-              <q-btn  outline icon="search" color="green" label="查询"  @click="lookup"/>
+              <q-btn  outline rounded icon="search" color="green" label="查询"  @click="lookup"/>
             </template>
           </q-input>
         </div>
@@ -62,7 +64,7 @@
     </q-table>
 <!--    申请表单-->
     <q-dialog v-model="AccountForm" persistent>
-      <q-card style="width:900px;height:800px; max-width: 850px;" >
+      <q-card style="width:1000px;height:800px; max-width: 990px;" >
         <q-card-section>
           <div class="row">
             <div class="text-h6 text-bold">{{formTitle}}</div>
@@ -77,27 +79,24 @@
               <q-input v-model="formData.name" prefix="使用人姓名：" placeholder="请输入姓名" style="width:220px" dense
                        :rules="[val => val !== null && val !== '' || '此为必填项',val => val.indexOf(' ') < 0 || '不能有空格']" :disable="onlyView"
               />
+              <q-input v-model="formData.tel" prefix="手机号码：" placeholder="请输入手机号码" style="width:220px" dense
+                       :rules="[val => val !== null && val !== '' || '此为必填项',val => val.match('0?(13|14|15|17|18|19)[0-9]{9}') && val.length === 11 || '手机号码不正确']" :disable="onlyView"/>
+              <q-input v-model="formData.post" prefix="岗位/职务：" placeholder="请输入岗位" style="width:200px" dense
+                       :rules="[val => val !== null && val !== '' || '此为必填项',val => val.indexOf(' ') < 0 || '不能有空格']" :disable="onlyView"
+              />
+              <q-input v-model="formData.email" prefix="邮箱地址：" placeholder="请输入邮箱地址" style="width:300px" dense
+                       :rules="[val => val !== null && val !== '' || '此为必填项',val => val.match('\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}') || '邮箱地址不正确']" :disable="onlyView"/>
+            </div>
+          </q-card-section>
+          <q-card-section>
+            <div class="row q-col-gutter-md">
               <q-select v-model="formData.dept" :options="branchOptions" prefix="部门/公司：" placeholder="请选择部门或者公司" style="width:220px" dense
                         :rules="[val => val !== null && val !== '' || '此为必填项']" :disable="onlyView"
               />
-              <q-input v-model="formData.post" prefix="岗位/职务：" placeholder="请输入岗位或职务" style="width:220px" dense
-                       :rules="[val => val !== null && val !== '' || '此为必填项',val => val.indexOf(' ') < 0 || '不能有空格']" :disable="onlyView"
-              />
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-md">
-              <q-input v-model="formData.email" prefix="邮箱地址：" placeholder="请输入邮箱地址" style="width:280px" dense
-                       :rules="[val => val !== null && val !== '' || '此为必填项',val => val.match('\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}') || '邮箱地址不正确']" :disable="onlyView"/>
-              <q-input v-model="formData.tel" prefix="手机号码：" placeholder="请输入手机号码" style="width:220px" dense
-                       :rules="[val => val !== null && val !== '' || '此为必填项',val => val.match('0?(13|14|15|17|18|19)[0-9]{9}') && val.length === 11 || '手机号码不正确']" :disable="onlyView"/>
+
               <q-select v-model="formData.group" :options="groupOptions" prefix="组别：" placeholder="请选择组别" style="width:150px" dense
                         :rules="[val => val !== null && val !== '' || '此为必填项']" :disable="onlyView"
               />
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-md">
               <q-select v-model="formData.applicationType" :options="applicationTypeOptions" prefix="申请类型：" placeholder="请选择" style="width:200px" dense
                         :rules="[val => val !== null && val !== '' || '此为必填项']" :disable="onlyView"
               />
@@ -105,8 +104,13 @@
                        :rules="[val => val !== null && val !== '' || '此为必填项']" :disable="onlyView"/>
             </div>
           </q-card-section>
+          <q-card-section>
+            <div class="row q-col-gutter-md">
+
+            </div>
+          </q-card-section>
           <q-separator />
-          <q-card-section class="q-gutter-sm">
+          <q-card-section class="row q-gutter-sm">
             <div class="row q-gutter-sm">
               <div class="text-blue-8">{{ system1 }}：</div>
               <q-option-group v-model="formData.sysOrg1" :options="organizationOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
@@ -153,8 +157,8 @@
           </q-card-section>
           <q-separator />
           <q-card-actions align="right">
-            <q-btn flat dense label="提交" type="submit" color="primary" :disable="onlyView"/>
-            <q-btn flat dense label="取消" color="primary" type="reset"/>
+            <q-btn outline dense label="提交" type="submit" color="primary" :disable="onlyView"/>
+            <q-btn outline dense label="取消" color="red" type="reset"/>
           </q-card-actions>
         </q-form>
       </q-card>

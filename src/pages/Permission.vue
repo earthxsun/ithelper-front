@@ -13,6 +13,47 @@
     <button @click="branchData">GetBracnh</button>
     <br>
     <br>
+    <div class="text-left" style="word-wrap: break-word;white-space: normal">
+                {formData={"name":"王小龙","group":"C1组","dept":"关务综合","post":"财务","email":"huangxiaolong@szjuhang.com","tel":"15715513322","reason":"员工新入职","sysOrg1":["物流","综合","东诚"],"sysPerm1":["报关操作","计费管理","往来单位管理"],"sysOrg2":["物流","综合","东诚"],"sysPerm2":["报关作业操作","报关作业审核","财务权限","报价管理","合作伙伴管理"],"sysOrg3":["关务中心","关务综合","东诚报关部"],"sysPerm3":["会计","出纳","费用报销"],"otherPerm":"总公司代收付款","applicationType":"新增账号","system1":"关贸云","system2":"ERP","system3":"金蝶EAS","id":[]}, method=add}
+    </div>
+    <br>
+    <br>
+    <q-table
+      title="Treats"
+      :data="data"
+      :columns="columns"
+      row-key="name"
+      selection="single"
+      :selected.sync="selected"
+    >
+
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td auto-width>
+            <q-checkbox dense v-model="props.selected"/>
+          </q-td>
+          <q-td key="desc" :props="props">
+            {{ props.row.name }}
+            <q-btn dense round flat :icon="props.expand ? 'arrow_drop_up' : 'arrow_drop_down'" @click="props.expand = !props.expand" />
+          </q-td>
+          <q-td key="calories" :props="props">{{ props.row.calories }}</q-td>
+          <q-td key="fat" :props="props">{{ props.row.fat }}</q-td>
+          <q-td key="carbs" :props="props">{{ props.row.carbs }}</q-td>
+          <q-td key="protein" :props="props">{{ props.row.protein }}</q-td>
+          <q-td key="sodium" :props="props">{{ props.row.sodium }}</q-td>
+          <q-td key="calcium" :props="props">{{ props.row.calcium }}</q-td>
+
+        </q-tr>
+        <q-tr v-show="props.expand" :props="props">
+          <q-td colspan="100%">
+            <div class="text-left" style="word-wrap: break-word;white-space: normal">
+                {formData={"name":"王小龙","group":"C1组","dept":"关务综合","post":"财务","email":"huangxiaolong@szjuhang.com","tel":"15715513322","reason":"员工新入职","sysOrg1":["物流","综合","东诚"],"sysPerm1":["报关操作","计费管理","往来单位管理"],"sysOrg2":["物流","综合","东诚"],"sysPerm2":["报关作业操作","报关作业审核","财务权限","报价管理","合作伙伴管理"],"sysOrg3":["关务中心","关务综合","东诚报关部"],"sysPerm3":["会计","出纳","费用报销"],"otherPerm":"总公司代收付款","applicationType":"新增账号","system1":"关贸云","system2":"ERP","system3":"金蝶EAS","id":[]}, method=add}
+            </div>
+          </q-td>
+        </q-tr>
+      </template>
+
+    </q-table>
   </div>
 </template>
 
@@ -26,6 +67,24 @@ export default {
     return {
       checked: true,
       selected: [],
+      columns: [
+        {
+          name: 'desc',
+          required: true,
+          label: 'Dessert (100g serving)',
+          align: 'left',
+          field: row => row.name,
+          format: val => `${val}`,
+          sortable: true
+        },
+        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
+        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true, style: 'width: 10px' },
+        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
+        { name: 'protein', label: 'Protein (g)', field: 'protein' },
+        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
+        { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
+        { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+      ],
       data: [
         {
           name: 'Frozen Yogurt',
@@ -129,31 +188,7 @@ export default {
         }
       ],
       name: '使用人名称',
-      text: '',
-      vselect: '',
-      options: ['序号', '作者', '标题', '日期', 'Oracle', '巨航总公司'],
-      sidemenu: [
-        {
-          menulink: '/index',
-          menuicon: 'school',
-          menutitle: '首页'
-        },
-        {
-          menulink: '/account/index',
-          menuicon: 'code',
-          menutitle: '账号申请'
-        },
-        {
-          menulink: '/user/index',
-          menuicon: 'chat',
-          menutitle: '用户管理'
-        },
-        {
-          menulink: '/permission/index',
-          menuicon: 'record_voice_over',
-          menutitle: '权限管理'
-        }
-      ]
+      options: ['序号', '作者', '标题', '日期', 'Oracle', '巨航总公司']
     }
   },
   methods: {
@@ -192,7 +227,10 @@ export default {
     },
     branchData () {
       // this.$store.commit('application/SET_ROLE', '')
-      service.get('api/test/gettest').then(resp => {
+      service.post('api/test/gettest', {
+        name: 'admin',
+        pwd: '123'
+      }).then(resp => {
         console.log(resp)
       })
     },

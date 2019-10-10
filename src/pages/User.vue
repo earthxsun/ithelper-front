@@ -14,8 +14,7 @@
                rounded
                @click="editUser" />
         <!-- <q-btn color="red" :icon="onofficon" :label="onofflabel" rounded /> -->
-        <div class="absolute-right q-gutter-sm row"
-             style="margin-right:50px;margin-bottom:10px">
+        <div class="absolute-right q-gutter-sm row" style="margin-right:50px">
           <q-select outlined
                     bottom-slots
                     dense

@@ -38,16 +38,10 @@ service.interceptors.response.use(response => {
   console.log('responseError:')
   console.log(error.response)
   if (error.response.data.code === 40002 || error.response.data.code === 40005) {
-    // localStorage.removeItem('username')
-    // localStorage.removeItem('token')
-    // localStorage.removeItem('userRoutes')
     localStorage.clear()
     Router.push('/login')
   }
   if (error.response.data.code === 40006) {
-    // localStorage.removeItem('username')
-    // localStorage.removeItem('token')
-    // localStorage.removeItem('userRoutes')
     localStorage.clear()
     Notify.create({
       color: 'red',
@@ -58,7 +52,6 @@ service.interceptors.response.use(response => {
     })
     Router.push('/login')
   }
-  // if (error.response.data.status)
   return Promise.reject(error)
 })
 export default service

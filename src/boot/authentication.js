@@ -43,10 +43,9 @@ export default ({
             console.log('初始化路由')
             store.commit('application/generateRoutes', dynamicRoutes)
             router.addRoutes(dynamicRoutes)
-            next({
-              ...to,
-              replace: true
-            })
+            next()
+          }).catch(error => {
+            console.log(error)
           })
         } else {
           console.log('添加动态路由')
