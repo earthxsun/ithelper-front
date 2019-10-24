@@ -3,6 +3,19 @@
     <h1>权限管理</h1>
     <br>
     <br>
+    <q-btn label="Hover me" color="primary" disable>
+      <q-tooltip>
+        Some text as content of Tooltip
+      </q-tooltip>
+    </q-btn>
+    <br>
+    <br>
+    <div v-for="(d,index) in counter" :key="index" class="row q-gutter-sm">
+      <q-select v-model="sys[index]" :options="options" label="Standard" />
+       <q-input v-model="ncontent[index]" placeholder="请输入账号名称" ></q-input>
+    </div>
+    <br>
+    <br>
     <button @click="loadData">GetData</button>
     <div>{{getRole}}</div>
     <br>
@@ -13,47 +26,48 @@
     <button @click="branchData">GetBracnh</button>
     <br>
     <br>
+    <button @click="getSome">GetSomething</button>
     <div class="text-left" style="word-wrap: break-word;white-space: normal">
                 {formData={"name":"王小龙","group":"C1组","dept":"关务综合","post":"财务","email":"huangxiaolong@szjuhang.com","tel":"15715513322","reason":"员工新入职","sysOrg1":["物流","综合","东诚"],"sysPerm1":["报关操作","计费管理","往来单位管理"],"sysOrg2":["物流","综合","东诚"],"sysPerm2":["报关作业操作","报关作业审核","财务权限","报价管理","合作伙伴管理"],"sysOrg3":["关务中心","关务综合","东诚报关部"],"sysPerm3":["会计","出纳","费用报销"],"otherPerm":"总公司代收付款","applicationType":"新增账号","system1":"关贸云","system2":"ERP","system3":"金蝶EAS","id":[]}, method=add}
     </div>
     <br>
     <br>
-    <q-table
-      title="Treats"
-      :data="data"
-      :columns="columns"
-      row-key="name"
-      selection="single"
-      :selected.sync="selected"
-    >
+<!--    <q-table-->
+<!--      title="Treats"-->
+<!--      :data="data"-->
+<!--      :columns="columns"-->
+<!--      row-key="name"-->
+<!--      selection="single"-->
+<!--      :selected.sync="selected"-->
+<!--    >-->
 
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td auto-width>
-            <q-checkbox dense v-model="props.selected"/>
-          </q-td>
-          <q-td key="desc" :props="props">
-            {{ props.row.name }}
-            <q-btn dense round flat :icon="props.expand ? 'arrow_drop_up' : 'arrow_drop_down'" @click="props.expand = !props.expand" />
-          </q-td>
-          <q-td key="calories" :props="props">{{ props.row.calories }}</q-td>
-          <q-td key="fat" :props="props">{{ props.row.fat }}</q-td>
-          <q-td key="carbs" :props="props">{{ props.row.carbs }}</q-td>
-          <q-td key="protein" :props="props">{{ props.row.protein }}</q-td>
-          <q-td key="sodium" :props="props">{{ props.row.sodium }}</q-td>
-          <q-td key="calcium" :props="props">{{ props.row.calcium }}</q-td>
+<!--      <template v-slot:body="props">-->
+<!--        <q-tr :props="props">-->
+<!--          <q-td auto-width>-->
+<!--            <q-checkbox dense v-model="props.selected"/>-->
+<!--          </q-td>-->
+<!--          <q-td key="desc" :props="props">-->
+<!--            {{ props.row.name }}-->
+<!--            <q-btn dense round flat :icon="props.expand ? 'arrow_drop_up' : 'arrow_drop_down'" @click="props.expand = !props.expand" />-->
+<!--          </q-td>-->
+<!--          <q-td key="calories" :props="props">{{ props.row.calories }}</q-td>-->
+<!--          <q-td key="fat" :props="props">{{ props.row.fat }}</q-td>-->
+<!--          <q-td key="carbs" :props="props">{{ props.row.carbs }}</q-td>-->
+<!--          <q-td key="protein" :props="props">{{ props.row.protein }}</q-td>-->
+<!--          <q-td key="sodium" :props="props">{{ props.row.sodium }}</q-td>-->
+<!--          <q-td key="calcium" :props="props">{{ props.row.calcium }}</q-td>-->
 
-        </q-tr>
-        <q-tr v-show="props.expand" :props="props">
-          <q-td colspan="100%">
-            <div class="text-left" style="word-wrap: break-word;white-space: normal">
-                {formData={"name":"王小龙","group":"C1组","dept":"关务综合","post":"财务","email":"huangxiaolong@szjuhang.com","tel":"15715513322","reason":"员工新入职","sysOrg1":["物流","综合","东诚"],"sysPerm1":["报关操作","计费管理","往来单位管理"],"sysOrg2":["物流","综合","东诚"],"sysPerm2":["报关作业操作","报关作业审核","财务权限","报价管理","合作伙伴管理"],"sysOrg3":["关务中心","关务综合","东诚报关部"],"sysPerm3":["会计","出纳","费用报销"],"otherPerm":"总公司代收付款","applicationType":"新增账号","system1":"关贸云","system2":"ERP","system3":"金蝶EAS","id":[]}, method=add}
-            </div>
-          </q-td>
-        </q-tr>
-      </template>
+<!--        </q-tr>-->
+<!--        <q-tr v-show="props.expand" :props="props">-->
+<!--          <q-td colspan="100%">-->
+<!--            <div class="text-left" style="word-wrap: break-word;white-space: normal">-->
+<!--                {formData={"name":"王小龙","group":"C1组","dept":"关务综合","post":"财务","email":"huangxiaolong@szjuhang.com","tel":"15715513322","reason":"员工新入职","sysOrg1":["物流","综合","东诚"],"sysPerm1":["报关操作","计费管理","往来单位管理"],"sysOrg2":["物流","综合","东诚"],"sysPerm2":["报关作业操作","报关作业审核","财务权限","报价管理","合作伙伴管理"],"sysOrg3":["关务中心","关务综合","东诚报关部"],"sysPerm3":["会计","出纳","费用报销"],"otherPerm":"总公司代收付款","applicationType":"新增账号","system1":"关贸云","system2":"ERP","system3":"金蝶EAS","id":[]}, method=add}-->
+<!--            </div>-->
+<!--          </q-td>-->
+<!--        </q-tr>-->
+<!--      </template>-->
 
-    </q-table>
+<!--    </q-table>-->
   </div>
 </template>
 
@@ -62,10 +76,15 @@ import { mapActions } from 'vuex'
 import Fingerprint2 from 'fingerprintjs2'
 // import axios from 'axios'
 import service from '../utils/request'
+// import finishForm from './AccountFinishForm'
 export default {
   data () {
     return {
       checked: true,
+      isShow: false,
+      counter: [],
+      sys: [],
+      ncontent: [],
       selected: [],
       columns: [
         {
@@ -191,6 +210,7 @@ export default {
       options: ['序号', '作者', '标题', '日期', 'Oracle', '巨航总公司']
     }
   },
+  // components: { finishForm },
   methods: {
     ...mapActions('application', ['addnum']),
     loadData () {
@@ -216,23 +236,18 @@ export default {
       })
     },
     userData () {
-      service
-        .get('/api/account/erpPermissions')
-        .then(resp => {
-          console.log(resp)
-        })
-        .catch(() => {
-          console.log('load fail')
-        })
+      console.log('----userData----')
+      console.log(a)
+      add()
+      console.log(a)
     },
     branchData () {
-      // this.$store.commit('application/SET_ROLE', '')
-      service.post('api/test/gettest', {
-        name: 'admin',
-        pwd: '123'
-      }).then(resp => {
+      service.get('api/test/gettest').then(resp => {
         console.log(resp)
       })
+    },
+    getSome () {
+      console.log(this.ncontent + '--' + this.sys)
     },
     getfinger () {
       let _store = this.$store

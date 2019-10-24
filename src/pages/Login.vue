@@ -60,16 +60,15 @@ export default {
           finger: finger
         })
         .then(resp => {
-          console.log(resp.data)
           if (resp.data.code === 99999) {
             localStorage.setItem('username', resp.data.data.username)
             localStorage.setItem('token', resp.data.data.token)
             localStorage.setItem('expTime', resp.data.data.exp_time)
             localStorage.setItem('lastLoginTime', resp.data.data.lastLoginTime)
             localStorage.setItem('role', resp.data.data.role)
+            localStorage.setItem('org', JSON.stringify(resp.data.data.org))
             this.$store.commit('application/SET_USERNAME', resp.data.data.username)
             this.$store.commit('application/SET_ROLE', resp.data.data.role)
-            // this.$store.commit('application/SET_TOKEN', resp.data.data.token)
             this.$router.push('/index')
           } else {
             this.isShow = true

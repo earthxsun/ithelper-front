@@ -2,7 +2,7 @@
   "name": "qtest",
   "version": "0.0.1",
   "description": "A Quasar Framework app",
-  "productName": "Quasar App",
+  "productName": "IT Helper System",
   "cordovaId": "org.cordova.quasar.app",
   "author": "",
   "private": true,

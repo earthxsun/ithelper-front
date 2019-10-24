@@ -14,6 +14,10 @@ export const SET_FINGER = (state, data) => {
   state.finger = data
 }
 
+export const SET_ORG = (state, data) => {
+  state.org = data
+}
+
 export const generateRoutes = (state, data) => {
   state.accessRoutes = data
 }

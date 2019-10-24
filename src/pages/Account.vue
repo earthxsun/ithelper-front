@@ -3,21 +3,22 @@
     <q-card>
       <q-card-section class="q-gutter-sm">
         <div class="row q-gutter-sm">
-          <q-btn color="primary" icon="open_in_new" label="查看" rounded @click="view"/>
-          <q-btn color="primary" icon="add" label="新增" rounded @click="add" />
-          <q-btn color="primary" icon="edit" label="编辑" rounded @click="edit" :disable="editBtn"/>
-          <q-btn color="secondary" icon="done" label="完成提交" rounded @click="refer('已提交')" v-show="!referBtn" :disable="disableReferBtn"/>
-          <q-btn color="secondary" icon="done" label="取消提交" rounded @click="refer('暂存')" v-show="referBtn" :disable="disableReferBtn"/>
-          <q-btn color="secondary" icon="print" label="打印预览" rounded @click="printPdf" :disable="printBtn"/>
-          <q-btn color="positive" icon="how_to_reg" label="任务完成" rounded @click="refer('已完成')" :disable="finishBtn" v-show="showFinishBtn" v-has-permission="'管理员'"/>
-          <q-btn color="positive" icon="how_to_reg" label="取消完成" rounded @click="refer('已提交')" :disable="finishBtn" v-show="!showFinishBtn"/>
-          <q-btn color="red" icon="clear" label="作废申请" rounded @click="refer('作废')" :disable="invalidBtn" v-show="showInvalidBtn"/>
-          <q-btn color="red" icon="clear" label="取消作废" rounded @click="refer('暂存')" :disable="invalidBtn" v-show="!showInvalidBtn"/>
-          <q-btn color="info" icon="replay" label="重载数据" rounded @click="reloadAll"/>
+          <q-btn color="primary" icon="open_in_new" label="查看" rounded outline @click="view"/>
+          <q-btn color="primary" icon="add" label="新增" rounded outline @click="add" />
+          <q-btn color="primary" icon="edit" label="编辑" rounded outline @click="edit" :disable="editBtn"/>
+          <q-btn color="secondary" icon="done" label="完成提交" rounded outline @click="refer('已提交')" v-show="!referBtn" :disable="disableReferBtn"/>
+          <q-btn color="secondary" icon="done" label="取消提交" rounded outline @click="refer('暂存')" v-show="referBtn" :disable="disableReferBtn"/>
+          <q-btn color="secondary" icon="print" label="打印预览" rounded outline @click="printPdf" :disable="printBtn"/>
+          <q-btn color="positive" icon="how_to_reg" label="账号信息" rounded outline @click="finishJob" :disable="finishBtn"/>
+<!--          <q-btn color="positive" icon="how_to_reg" label="账号详情" rounded @click="refer('已完成')" :disable="finishBtn" v-show="showFinishBtn" v-has-permission="'管理员'"/>-->
+          <q-btn color="negative" icon="how_to_reg" label="取消完成" rounded outline @click="refer('已提交')" :disable="finishBtn" v-has-permission="'管理员'"/>
+          <q-btn color="red" icon="clear" label="作废申请" rounded outline @click="refer('作废')" :disable="invalidBtn" v-show="showInvalidBtn"/>
+          <q-btn color="red" icon="clear" label="取消作废" rounded outline @click="refer('暂存')" :disable="invalidBtn" v-show="!showInvalidBtn"/>
+          <q-btn color="info" icon="replay" label="重载数据" rounded outline @click="reloadAll"/>
         </div>
         <div class="q-gutter-sm row" style="margin-right:50px;">
           <q-select outlined rounded dense bottom-slots v-model="searchWord" :options="searchOptions" style="width:120px" />
-          <q-input bottom-slots v-model="pagination.searchContent" v-if="searchWord.value === 'name'" placeholder="请输入搜索内容...." style="width:250px;" dense rounded outlined>
+          <q-input bottom-slots v-model="pagination.searchContent" v-if="searchWord.value === 'name'" placeholder="请输入搜索内容...." style="width:250px;"  dense rounded outlined>
             <template v-slot:after>
               <q-btn outline rounded icon="search" color="green"  @click="lookup"/>
             </template>
@@ -64,7 +65,7 @@
     </q-table>
 <!--    申请表单-->
     <q-dialog v-model="AccountForm" persistent>
-      <q-card style="width:1000px;height:800px; max-width: 990px;" >
+      <q-card style="width:1000px;height:600px; max-width: 990px;" >
         <q-card-section>
           <div class="row">
             <div class="text-h6 text-bold">{{formTitle}}</div>
@@ -104,55 +105,22 @@
                        :rules="[val => val !== null && val !== '' || '此为必填项']" :disable="onlyView"/>
             </div>
           </q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-md">
-
-            </div>
-          </q-card-section>
           <q-separator />
-          <q-card-section class="row q-gutter-sm">
-            <div class="row q-gutter-sm">
-              <div class="text-blue-8">{{ system1 }}：</div>
-              <q-option-group v-model="formData.sysOrg1" :options="organizationOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-            </div>
-            <div class="row q-gutter-sm">
-              <div class="text-blue-8">权 限：</div>
-              <q-option-group v-model="formData.sysPerm1" :options="sys1PermissionOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-            </div>
-          </q-card-section>
-          <q-separator />
-          <q-card-section class="q-gutter-sm">
-            <div class="row q-gutter-sm"  v-show="disableWithUser">
-              <div class="text-blue-8">{{system2}}：</div>
-              <q-option-group v-model="formData.sysOrg2" :options="organizationOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-            </div>
-            <div class="row q-gutter-sm">
-              <div class="text-blue-8">{{system2}}权限：</div>
-              <q-option-group v-model="formData.sysPerm2" :options="sys2PermissionOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-            </div>
-          </q-card-section>
-          <q-separator/>
-          <q-card-section class="q-gutter-sm">
-            <div class="row q-gutter-sm" v-show="disableWithUser">
-              <div class="text-blue-8">{{ system3 }}：</div>
-              <q-option-group v-model="formData.sysOrg3" :options="easBranchOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-            </div>
-            <div class="row q-gutter-sm">
-              <div class="text-blue-8">{{ system3 }}权限：</div>
-              <q-option-group v-model="formData.sysPerm3" :options="sys3PermissionOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-            </div>
-          </q-card-section>
-          <q-separator/>
+          <template v-for="(val) in requiredSystemPermissions">
+            <q-card-section class="row q-gutter-sm" :key="val.index">
+              <div class="row q-gutter-sm">
+                <div class="text-blue-8">{{ val.name }}：</div>
+                <q-option-group v-model="val.value" v-if="val.name !== '金蝶EAS'" :options="val.org" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
+                <q-option-group v-model="val.value" v-if="val.name === '金蝶EAS'" :options="val.org" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
+              </div>
+              <div class="row q-gutter-sm">
+                <div class="text-blue-8">权 限：</div>
+                <q-option-group v-model="val.perm" :options="val.permissionOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
+              </div>
+            </q-card-section>
+            <q-separator :key="val.index"/>
+          </template>
           <q-card-section>
-<!--            <div class="row q-gutter-sm">-->
-<!--              <q-option-group-->
-<!--                v-model="formData.permissions"-->
-<!--                :options="permissionOptions"-->
-<!--                color="green"-->
-<!--                type="checkbox"-->
-<!--                inline-->
-<!--              />-->
-<!--            </div>-->
             <q-input v-model="formData.otherPerm" prefix="其他权限：" placeholder="请输入需要的其他权限" style="width:700px" :disable="onlyView" dense/>
           </q-card-section>
           <q-separator />
@@ -163,13 +131,16 @@
         </q-form>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="accountFinishFormShow" persistent>
+      <account-finish-form :accountDetail="accountDetail" :systemAccounts="systemAccountDetail"  @closeForm="closeForm"></account-finish-form>
+    </q-dialog>
   </div>
-
 </template>
 
 <script>
 import { date } from 'quasar'
 import service from '../utils/request.js'
+import accountFinishForm from './AccountFinishForm'
 export default {
   data () {
     return {
@@ -178,7 +149,7 @@ export default {
         sortBy: 'id',
         descending: false,
         page: 1,
-        rowsPerPage: 5,
+        rowsPerPage: 7,
         rowsNumber: 20,
         searchContent: '',
         keyWord: ''
@@ -227,18 +198,11 @@ export default {
         email: '',
         tel: '',
         reason: '',
-        sysOrg1: [],
-        sysPerm1: [],
-        sysOrg2: [],
-        sysPerm2: [],
-        sysOrg3: [],
-        sysPerm3: [],
         otherPerm: '',
         applicationType: ''
       },
-      system1: '关贸云',
-      system2: 'ERP',
-      system3: '金蝶EAS',
+      sysPermissionOptions: [],
+      requiredSystemPermissions: [],
       tableData: [],
       searchOptions: [{
         label: '申请人',
@@ -261,18 +225,23 @@ export default {
       branchOptions: [],
       easBranchOptions: [],
       groupOptions: [],
-      organizationOptions: [{ label: '物流', value: '物流' }, { label: '综合', value: '综合' }, { label: '东诚', value: '东诚' }],
+      organizationOptions: [],
       applicationTypeOptions: [],
-      sys1PermissionOptions: [],
-      sys2PermissionOptions: [],
-      sys3PermissionOptions: [],
-      // easDetailPermissionOptions: [],
+      systemAccountDetail: [],
       AccountForm: false,
-      isShowDetailPermission: false
+      accountFinishFormShow: false,
+      accountDetail: {
+        id: 0,
+        status: ''
+      },
+      isShowDetailPermission: false,
+      test: true
     }
   },
+  components: { accountFinishForm },
   methods: {
     loadData (props) {
+      // 加载表格数据
       service.post('api/account/getAll', {
         rowsPerPage: props.pagination.rowsPerPage,
         rowsNumber: props.pagination.rowsNumber,
@@ -288,6 +257,7 @@ export default {
         this.pagination.rowsPerPage = resp.data.rowsPerPage
         this.pagination.rowsNumber = resp.data.rowsNumber
       })
+      // 根据用户获取部门信息
       service.get('/api/account/getDept').then(resp => {
         this.branchOptions = []
         this.easBranchOptions = []
@@ -298,27 +268,31 @@ export default {
         }
         this.formData.dept = this.branchOptions[0]
         if (arr.length === 1) {
-          this.formData.sysOrg3.push(arr[0])
-          this.formData.sysOrg2.push(arr[0])
           this.disableWithUser = false
         }
       }).catch(() => {
         console.log('load branch fail')
       })
+      // 加载系统名称和系统权限
+      service.get('api/system').then(resp => {
+        const temp = []
+        let org = []
+        let orgValue = []
+        resp.data.forEach(function (value, index) {
+          if (value.name === '关贸云') {
+            org = [{ label: '物流', value: '物流' }, { label: '综合', value: '综合' }, { label: '东诚', value: '东诚' }]
+          } else {
+            org = JSON.parse(localStorage.getItem('org'))
+          }
+          temp[index] = { name: value.name, value: orgValue, perm: [], permissionOptions: value.permission, org: org }
+        })
+        this.requiredSystemPermissions = temp
+        console.log('---requiredSystemPermissions---')
+        console.log(this.requiredSystemPermissions)
+      })
+      // 加载表单所需基础信息
       service.get('api/account/data').then(resp => {
         for (let key in resp.data) {
-          if (key === 'EAS权限') {
-            this.sys3PermissionOptions = resp.data[key].firstOptions
-          }
-          if (key === 'ERP权限') {
-            this.sys2PermissionOptions = resp.data[key].firstOptions
-          }
-          if (key === '关贸云权限') {
-            this.sys1PermissionOptions = resp.data[key].firstOptions
-          }
-          // if (key === '系统名称') {
-          //   console.log(resp.data[key].firstOptions)
-          // }
           if (key === '申请类型') {
             this.applicationTypeOptions = []
             let obj = resp.data[key].firstOptions
@@ -335,10 +309,14 @@ export default {
           }
         }
       })
+      // 加载系统名信息
+      service.get('api/system').then(resp => {
+        this.systemAccountDetail = resp.data
+      })
     },
     reloadAll () {
       this.pagination.page = 1
-      this.pagination.rowsPerPage = 5
+      this.pagination.rowsPerPage = 7
       this.pagination.rowsNumber = 10
       this.pagination.searchContent = ''
       this.pagination.keyWord = ''
@@ -347,10 +325,10 @@ export default {
     },
     subForm () {
       console.log('提交结果')
-      this.formData['system1'] = this.system1
-      this.formData['system2'] = this.system2
-      this.formData['system3'] = this.system3
-      console.log(this.formData)
+      this.formData['requiredSystemPermissions'] = this.requiredSystemPermissions
+      // console.log(this.requiredSystemPermissions)
+      // console.log('-------------')
+      // console.log(this.formData)
       service.post('api/account', {
         formData: JSON.stringify(this.formData),
         method: this.submitMethod
@@ -388,6 +366,10 @@ export default {
           this.formData[f] = []
         }
       }
+      for (let r of this.requiredSystemPermissions) {
+        r.value = []
+        r.perm = []
+      }
     },
     view () {
       this.formTitle = '查看申请表'
@@ -406,34 +388,55 @@ export default {
     },
     refer (status) {
       if (this.selectRows.length === 1) {
-        service.get('api/account/updateStatus', { params: {
-          id: this.selectRows[0].id,
-          status: status
-        } })
-          .then(resp => {
-            if (resp.code === 99999) {
-              this.$q.notify({
-                color: 'green',
-                icon: 'thumb_up',
-                position: 'center',
-                timeout: 1500,
-                message: resp.message
+        // 判断是否已经有账号信息，有就不能取消提交
+        service.get('api/accountName/getOne', {
+          params: {
+            accountId: this.selectRows[0].id
+          }
+        }).then(resp => {
+          console.log(resp)
+          if (resp.data.length !== 0 && status === '暂存') {
+            this.$q.notify({
+              color: 'red',
+              icon: 'error',
+              position: 'center',
+              timeout: 1000,
+              classes: 'mynotifyfont',
+              message: '已有账号信息不能取消提交'
+            })
+          } else {
+            service.get('api/account/updateStatus', { params: {
+              id: this.selectRows[0].id,
+              status: status
+            } })
+              .then(resp => {
+                if (resp.code === 99999) {
+                  this.$q.notify({
+                    color: 'green',
+                    icon: 'thumb_up',
+                    position: 'center',
+                    timeout: 1500,
+                    message: resp.message
+                  })
+                  this.loadData({ pagination: this.pagination })
+                  this.changeBtn(status)
+                  this.accountDetail.status = status
+                  this.selectRows = []
+                } else {
+                  this.$q.notify({
+                    color: 'red',
+                    icon: 'error',
+                    position: 'center',
+                    timeout: 1000,
+                    classes: 'mynotifyfont',
+                    message: resp.message
+                  })
+                }
+              }).catch(error => {
+                console.log(error)
               })
-              this.loadData({ pagination: this.pagination })
-              this.changeBtn(status)
-            } else {
-              this.$q.notify({
-                color: 'red',
-                icon: 'error',
-                position: 'center',
-                timeout: 1000,
-                classes: 'mynotifyfont',
-                message: resp.message
-              })
-            }
-          }).catch(error => {
-            console.log(error.response)
-          })
+          }
+        })
       } else if (this.selectRows.length === 0) {
         this.$q.notify({
           color: 'red',
@@ -454,6 +457,64 @@ export default {
         })
       }
     },
+    finishJob () {
+      if (this.selectRows.length === 1) {
+        // console.log('---打开窗口---')
+        // console.log('父组件：' + this.selectRows[0].id)
+        // console.log('父组件：' + this.selectRows[0].status)
+        service.get('api/accountName/getOne', {
+          params: {
+            accountId: this.selectRows[0].id
+          }
+        }).then(resp => {
+          console.log(resp.data)
+          if (resp.data.length > 0) {
+            this.accountDetail.id = this.selectRows[0].id
+            this.accountDetail.status = this.selectRows[0].status
+            this.accountFinishFormShow = true
+          } else {
+            if (this.$store.state.application.role === '管理员') {
+              this.accountDetail.id = this.selectRows[0].id
+              this.accountDetail.status = this.selectRows[0].status
+              this.accountFinishFormShow = true
+            } else {
+              this.$q.notify({
+                color: 'red',
+                icon: 'error',
+                position: 'center',
+                timeout: 2500,
+                classes: 'mynotifyfont',
+                message: '还没有账号信息，请联系管理员'
+              })
+            }
+          }
+        })
+      } else if (this.selectRows.length === 0) {
+        this.$q.notify({
+          color: 'red',
+          icon: 'error',
+          position: 'center',
+          timeout: 2500,
+          classes: 'mynotifyfont',
+          message: '请选择分录'
+        })
+      } else {
+        this.$q.notify({
+          color: 'red',
+          icon: 'error',
+          position: 'center',
+          timeout: 2500,
+          classes: 'mynotifyfont',
+          message: '一次只能选择一条分录'
+        })
+      }
+    },
+    closeForm () {
+      this.accountFinishFormShow = false
+      this.loadData({ pagination: this.pagination })
+      this.selectRows = []
+    },
+    // 获取单个账号申请表信息，用于查看和编辑
     getAccount () {
       if (this.selectRows.length === 1) {
         service.get('api/account/edit', { params: {
@@ -461,7 +522,20 @@ export default {
         } })
           .then(resp => {
             Object.assign(this.formData, resp.data)
-            console.log(this.formData)
+            console.log('---getAccount---')
+            console.log(this.requiredSystemPermissions)
+            console.log(resp.data)
+            let systemInfoArray = resp.data.systemInfo
+            for (let i = 0; i < systemInfoArray.length; i++) {
+              for (let s = 0; s < this.requiredSystemPermissions.length; s++) {
+                if (systemInfoArray[i].name === this.requiredSystemPermissions[s].name) {
+                  this.requiredSystemPermissions[s].perm = systemInfoArray[i].perm
+                  this.requiredSystemPermissions[s].value = systemInfoArray[i].value
+                  this.requiredSystemPermissions[s].id = systemInfoArray[i].id
+                  this.requiredSystemPermissions[s].org = systemInfoArray[i].org
+                }
+              }
+            }
             this.AccountForm = true
           })
       } else if (this.selectRows.length === 0) {
@@ -536,7 +610,6 @@ export default {
     },
     printPdf () {
       if (this.selectRows.length === 1) {
-        console.log(this.selectRows)
         service({
           url: 'api/account/print',
           method: 'get',
@@ -544,7 +617,6 @@ export default {
           responseType: 'blob'
         }).then(resp => {
           let _this = this
-          console.log(resp.type)
           if (resp.type === 'application/json') {
             let blob = new Blob([resp], { type: 'application/json' })
             let read = new FileReader()
