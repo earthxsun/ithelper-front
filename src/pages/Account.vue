@@ -6,19 +6,20 @@
           <q-btn color="primary" icon="open_in_new" label="查看" rounded outline @click="view"/>
           <q-btn color="primary" icon="add" label="新增" rounded outline @click="add" />
           <q-btn color="primary" icon="edit" label="编辑" rounded outline @click="edit" :disable="editBtn"/>
-          <q-btn color="secondary" icon="done" label="完成提交" rounded outline @click="refer('已提交')" v-show="!referBtn" :disable="disableReferBtn"/>
-          <q-btn color="secondary" icon="done" label="取消提交" rounded outline @click="refer('暂存')" v-show="referBtn" :disable="disableReferBtn"/>
+          <q-btn color="secondary" icon="done" label="完成提交" rounded outline @click="refer('submit')" v-show="!referBtn" :disable="disableReferBtn"/>
+          <q-btn color="secondary" icon="done" label="取消提交" rounded outline @click="refer('save')" v-show="referBtn" :disable="disableReferBtn"/>
           <q-btn color="secondary" icon="print" label="打印预览" rounded outline @click="printPdf" :disable="printBtn"/>
-          <q-btn color="positive" icon="how_to_reg" label="账号信息" rounded outline @click="finishJob" :disable="finishBtn"/>
-<!--          <q-btn color="positive" icon="how_to_reg" label="账号详情" rounded @click="refer('已完成')" :disable="finishBtn" v-show="showFinishBtn" v-has-permission="'管理员'"/>-->
-          <q-btn color="negative" icon="how_to_reg" label="取消完成" rounded outline @click="refer('已提交')" :disable="finishBtn" v-has-permission="'管理员'"/>
-          <q-btn color="red" icon="clear" label="作废申请" rounded outline @click="refer('作废')" :disable="invalidBtn" v-show="showInvalidBtn"/>
-          <q-btn color="red" icon="clear" label="取消作废" rounded outline @click="refer('暂存')" :disable="invalidBtn" v-show="!showInvalidBtn"/>
-          <q-btn color="info" icon="replay" label="重载数据" rounded outline @click="reloadAll"/>
+          <q-btn color="positive" icon="how_to_reg" label="账号信息" rounded outline @click="finishJob" :disable="accountDetailBtn"/>
+          <q-btn color="black" icon="cloud_upload" label="上传文件" rounded outline @click="uploadFile" :disable="printBtn" v-show="showUploadBtn"/>
+          <q-btn color="black" icon="cloud_upload" label="查看文件" rounded outline @click="viewFile" :disable="printBtn" v-show="!showUploadBtn"/>
+          <q-btn color="negative" icon="how_to_reg" label="取消完成" rounded outline @click="refer('submit')" :disable="cancelFinishBtn" v-has-permission="'管理员'"/>
+          <q-btn color="red" icon="clear" label="作废申请" rounded outline @click="refer('invalid')" :disable="invalidBtn" v-show="showInvalidBtn"/>
+          <q-btn color="red" icon="clear" label="取消作废" rounded outline @click="refer('save')" :disable="invalidBtn" v-show="!showInvalidBtn"/>
+          <q-btn color="info" icon="replay" label="刷新数据" rounded outline @click="reloadAll"/>
         </div>
         <div class="q-gutter-sm row" style="margin-right:50px;">
           <q-select outlined rounded dense bottom-slots v-model="searchWord" :options="searchOptions" style="width:120px" />
-          <q-input bottom-slots v-model="pagination.searchContent" v-if="searchWord.value === 'name'" placeholder="请输入搜索内容...." style="width:250px;"  dense rounded outlined>
+          <q-input bottom-slots v-model="pagination.searchContent" v-if="searchWord.value === 'name' || searchWord.value === 'id'" placeholder="请输入搜索内容...." style="width:250px;"  dense rounded outlined>
             <template v-slot:after>
               <q-btn outline rounded icon="search" color="green"  @click="lookup"/>
             </template>
@@ -61,16 +62,16 @@
     <q-table class="myfont" :data="tableData" :columns="columns" row-key="id" selection="single"
              :selected.sync="selectRows" :visible-columns="visibleCols" :pagination.sync="pagination"
              no-data-label = "没找到数据"
-             @selection="monitorStatus" @request="loadData">
+             @selection="monitorStatus" @request="loadData" binary-state-sort>
     </q-table>
 <!--    申请表单-->
     <q-dialog v-model="AccountForm" persistent>
-      <q-card style="width:1000px;height:600px; max-width: 990px;" >
+      <q-card style="width:1000px;height:650px; max-width: 990px;" >
         <q-card-section>
           <div class="row">
             <div class="text-h6 text-bold">{{formTitle}}</div>
             <q-space/>
-            <q-btn flat icon="close" @click="onReset"></q-btn>
+            <q-btn flat icon="close" @click="onReset" ></q-btn>
           </div>
         </q-card-section>
         <q-separator />
@@ -91,7 +92,7 @@
           </q-card-section>
           <q-card-section>
             <div class="row q-col-gutter-md">
-              <q-select v-model="formData.dept" :options="branchOptions" prefix="部门/公司：" placeholder="请选择部门或者公司" style="width:220px" dense
+              <q-select v-model="formData.dept" :options="branchOptions" multiple prefix="部门/公司：" placeholder="请选择部门或者公司" style="width:400px" dense
                         :rules="[val => val !== null && val !== '' || '此为必填项']" :disable="onlyView"
               />
 
@@ -108,15 +109,24 @@
           <q-separator />
           <template v-for="(val) in requiredSystemPermissions">
             <q-card-section class="row q-gutter-sm" :key="val.index">
-              <div class="row q-gutter-sm">
-                <div class="text-blue-8">{{ val.name }}：</div>
-                <q-option-group v-model="val.value" v-if="val.name !== '金蝶EAS'" :options="val.org" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-                <q-option-group v-model="val.value" v-if="val.name === '金蝶EAS'" :options="val.org" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-              </div>
-              <div class="row q-gutter-sm">
-                <div class="text-blue-8">权 限：</div>
-                <q-option-group v-model="val.perm" :options="val.permissionOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
-              </div>
+                <template v-if="val.name !== '关贸云'">
+                  <div class="row q-gutter-sm">
+                    <div class="text-blue-8">{{ val.name }}权限：</div>
+                    <!--                <q-option-group v-model="val.value" v-if="val.name !== '金蝶EAS'" :options="val.org" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>-->
+<!--                    <q-option-group v-model="val.value" v-if="val.name === '关贸云'" :options="val.org" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>-->
+                    <q-option-group v-model="val.perm" :options="val.permissionOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
+                  </div>
+                </template>
+                <template v-if="val.name === '关贸云'">
+                  <div class="row q-gutter-sm">
+                    <div class="text-blue-8">{{ val.name }}：</div>
+                    <q-option-group v-model="val.value"  :options="val.org" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
+                  </div>
+                  <div class="row q-gutter-sm">
+                    <div class="text-blue-8">权限:</div>
+                    <q-option-group v-model="val.perm" :options="val.permissionOptions" color="green" type="checkbox" inline dense :disable="onlyView"></q-option-group>
+                  </div>
+                </template>
             </q-card-section>
             <q-separator :key="val.index"/>
           </template>
@@ -125,14 +135,19 @@
           </q-card-section>
           <q-separator />
           <q-card-actions align="right">
-            <q-btn outline dense label="提交" type="submit" color="primary" :disable="onlyView"/>
+            <q-btn outline dense label="保存" type="submit" color="primary" :disable="onlyView"/>
             <q-btn outline dense label="取消" color="red" type="reset"/>
           </q-card-actions>
         </q-form>
       </q-card>
     </q-dialog>
+<!--    账号信息-->
     <q-dialog v-model="accountFinishFormShow" persistent>
       <account-finish-form :accountDetail="accountDetail" :systemAccounts="systemAccountDetail"  @closeForm="closeForm"></account-finish-form>
+    </q-dialog>
+<!--    上传文件-->
+    <q-dialog v-model="showUploadFileForm"  persistent>
+      <upload-file-form :accountDetail="accountDetail" @reloadData="reloadAll"></upload-file-form>
     </q-dialog>
   </div>
 </template>
@@ -141,50 +156,61 @@
 import { date } from 'quasar'
 import service from '../utils/request.js'
 import accountFinishForm from './AccountFinishForm'
+import uploadFileForm from './UploadFileForm'
 export default {
   data () {
     return {
       selectRows: [],
+      clickTableRow: '',
       pagination: {
         sortBy: 'id',
-        descending: false,
+        descending: true,
         page: 1,
         rowsPerPage: 7,
         rowsNumber: 20,
-        searchContent: '',
-        keyWord: ''
+        keyWord: '',
+        searchContent: ''
       },
       startDate: '',
       endDate: '',
+      showUploadBtn: true,
       showFinishBtn: true,
       showInvalidBtn: true,
-      finishBtn: false,
+      cancelFinishBtn: false,
       printBtn: false,
       referBtn: false,
       disableReferBtn: false,
       editBtn: false,
       invalidBtn: false,
+      accountDetailBtn: true,
       onlyView: false,
       disableWithUser: true,
       formTitle: '',
       submitMethod: '',
-      visibleCols: ['num', 'name', 'dept', 'applicationType', 'createdBy', 'createTime', 'status'],
+      visibleCols: ['num', 'id', 'name', 'dept', 'applicationType', 'createdBy', 'createTime', 'status', 'uploadFileNum'],
       columns: [
-        {
-          name: 'id',
-          align: 'left',
-          label: 'id',
-          field: 'id',
-          sortable: true
-        },
         { name: 'num', align: 'left', label: '序号', field: 'num' },
-        { name: 'name', align: 'left', label: '申请人', field: 'name' },
+        { name: 'id', align: 'left', label: '申请表号', field: 'id', sortable: true },
+        { name: 'name', align: 'left', label: '使用人', field: 'name' },
         { name: 'dept', align: 'left', label: '所在公司/部门', field: 'dept' },
-        // { name: 'systemName', align: 'left', label: '系统名称', field: 'systemName' },
-        { name: 'applicationType', align: 'left', label: '申请类型', field: 'applicationType' },
+        { name: 'applicationType', align: 'left', label: '申请类型', field: 'applicationType', sortable: true },
         { name: 'createdBy', align: 'left', label: '创建人', field: 'createdBy' },
-        { name: 'createTime', align: 'left', label: '创建时间', field: 'createTime', format: val => date.formatDate(val, 'YYYY-MM-DD HH:mm') },
-        { name: 'status', align: 'left', label: '状态', field: 'status' }
+        { name: 'createTime', align: 'left', label: '创建时间', field: 'createTime', format: val => date.formatDate(val, 'YYYY-MM-DD HH:mm'), sortable: true },
+        { name: 'status',
+          align: 'left',
+          label: '状态',
+          field: 'status',
+          format: val => {
+            if (val === 'save') { return '暂存' } else if (val === 'submit') { return '已提交' } else if (val === 'finish') { return '已完成' } else { return '作废' }
+          },
+          sortable: true },
+        { name: 'uploadFileNum',
+          align: 'left',
+          label: '是否已上传申请表',
+          field: 'uploadFileNum',
+          format: val => {
+            if (val > 0) { return '是' } else { return '否' }
+          } }
       ],
       searchWord: {
         label: '申请人',
@@ -193,7 +219,7 @@ export default {
       formData: {
         name: '',
         group: '',
-        dept: '',
+        dept: null,
         post: '',
         email: '',
         tel: '',
@@ -208,6 +234,10 @@ export default {
         label: '申请人',
         value: 'name'
       }, {
+        label: '申请表号',
+        value: 'id'
+      },
+      {
         label: '申请类型',
         value: 'type'
       }, {
@@ -230,6 +260,7 @@ export default {
       systemAccountDetail: [],
       AccountForm: false,
       accountFinishFormShow: false,
+      showUploadFileForm: false,
       accountDetail: {
         id: 0,
         status: ''
@@ -238,7 +269,7 @@ export default {
       test: true
     }
   },
-  components: { accountFinishForm },
+  components: { accountFinishForm, uploadFileForm },
   methods: {
     loadData (props) {
       // 加载表格数据
@@ -247,15 +278,21 @@ export default {
         rowsNumber: props.pagination.rowsNumber,
         page: props.pagination.page,
         sortBy: props.pagination.sortBy,
+        descending: props.pagination.descending,
         searchContent: props.pagination.searchContent,
         keyWord: props.pagination.keyWord,
         startDate: this.startDate,
         endDate: this.endDate
       }).then(resp => {
-        this.tableData = resp.data.data
-        this.pagination.page = resp.data.page
-        this.pagination.rowsPerPage = resp.data.rowsPerPage
-        this.pagination.rowsNumber = resp.data.rowsNumber
+        // console.log(resp.data.data)
+        if (resp.code === 99999) {
+          this.tableData = resp.data.data
+          this.pagination.page = resp.data.page
+          this.pagination.rowsPerPage = resp.data.rowsPerPage
+          this.pagination.rowsNumber = resp.data.rowsNumber
+          this.pagination.descending = resp.data.descending
+          this.pagination.sortBy = resp.data.sortBy
+        }
       })
       // 根据用户获取部门信息
       service.get('/api/account/getDept').then(resp => {
@@ -266,12 +303,12 @@ export default {
           this.branchOptions.push(r)
           this.easBranchOptions.push({ label: r, value: r })
         }
-        this.formData.dept = this.branchOptions[0]
+        // this.formData.dept = this.branchOptions[0]
         if (arr.length === 1) {
           this.disableWithUser = false
         }
       }).catch(() => {
-        console.log('load branch fail')
+        // console.log('load branch fail')
       })
       // 加载系统名称和系统权限
       service.get('api/system').then(resp => {
@@ -287,8 +324,6 @@ export default {
           temp[index] = { name: value.name, value: orgValue, perm: [], permissionOptions: value.permission, org: org }
         })
         this.requiredSystemPermissions = temp
-        console.log('---requiredSystemPermissions---')
-        console.log(this.requiredSystemPermissions)
       })
       // 加载表单所需基础信息
       service.get('api/account/data').then(resp => {
@@ -322,18 +357,14 @@ export default {
       this.pagination.keyWord = ''
       this.pagination.sortBy = 'id'
       this.loadData({ pagination: this.pagination })
+      this.selectRows = []
     },
     subForm () {
-      console.log('提交结果')
       this.formData['requiredSystemPermissions'] = this.requiredSystemPermissions
-      // console.log(this.requiredSystemPermissions)
-      // console.log('-------------')
-      // console.log(this.formData)
       service.post('api/account', {
         formData: JSON.stringify(this.formData),
         method: this.submitMethod
       }).then(resp => {
-        console.log(resp)
         if (resp.code === 99999) {
           this.$q.notify({
             color: 'green',
@@ -387,6 +418,7 @@ export default {
       this.getAccount()
     },
     refer (status) {
+      // status（申请表状态）：save（暂存），submit（已提交），finish（已完成），invalid（作废）
       if (this.selectRows.length === 1) {
         // 判断是否已经有账号信息，有就不能取消提交
         service.get('api/accountName/getOne', {
@@ -394,8 +426,7 @@ export default {
             accountId: this.selectRows[0].id
           }
         }).then(resp => {
-          console.log(resp)
-          if (resp.data.length !== 0 && status === '暂存') {
+          if (resp.data.length !== 0 && status === 'save') {
             this.$q.notify({
               color: 'red',
               icon: 'error',
@@ -432,8 +463,6 @@ export default {
                     message: resp.message
                   })
                 }
-              }).catch(error => {
-                console.log(error)
               })
           }
         })
@@ -442,7 +471,7 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '请选择分录'
         })
@@ -451,7 +480,7 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '一次只能选择一条分录'
         })
@@ -459,15 +488,11 @@ export default {
     },
     finishJob () {
       if (this.selectRows.length === 1) {
-        // console.log('---打开窗口---')
-        // console.log('父组件：' + this.selectRows[0].id)
-        // console.log('父组件：' + this.selectRows[0].status)
         service.get('api/accountName/getOne', {
           params: {
             accountId: this.selectRows[0].id
           }
         }).then(resp => {
-          console.log(resp.data)
           if (resp.data.length > 0) {
             this.accountDetail.id = this.selectRows[0].id
             this.accountDetail.status = this.selectRows[0].status
@@ -482,7 +507,7 @@ export default {
                 color: 'red',
                 icon: 'error',
                 position: 'center',
-                timeout: 2500,
+                timeout: 2000,
                 classes: 'mynotifyfont',
                 message: '还没有账号信息，请联系管理员'
               })
@@ -494,7 +519,7 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '请选择分录'
         })
@@ -503,7 +528,7 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '一次只能选择一条分录'
         })
@@ -522,9 +547,6 @@ export default {
         } })
           .then(resp => {
             Object.assign(this.formData, resp.data)
-            console.log('---getAccount---')
-            console.log(this.requiredSystemPermissions)
-            console.log(resp.data)
             let systemInfoArray = resp.data.systemInfo
             for (let i = 0; i < systemInfoArray.length; i++) {
               for (let s = 0; s < this.requiredSystemPermissions.length; s++) {
@@ -543,7 +565,7 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '请选择分录'
         })
@@ -552,14 +574,13 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '一次只能选择一条分录'
         })
       }
     },
     lookup () {
-      console.log(this.pagination)
       this.pagination.keyWord = this.searchWord.value
       this.loadData({ pagination: this.pagination })
     },
@@ -569,43 +590,49 @@ export default {
     },
     changeBtn (status) {
       switch (status) {
-        case '暂存':
+        case 'save':
           this.invalidBtn = false
           this.editBtn = false
           this.disableReferBtn = false
           this.referBtn = false
           this.printBtn = true
-          this.finishBtn = true
+          this.cancelFinishBtn = true
           this.showFinishBtn = true
           this.showInvalidBtn = true
+          this.accountDetailBtn = true
+          this.showUploadBtn = true
           break
-        case '已提交':
+        case 'submit':
           this.disableReferBtn = false
           this.invalidBtn = true
           this.showInvalidBtn = true
           this.editBtn = true
           this.referBtn = true
           this.printBtn = false
-          this.finishBtn = false
+          this.cancelFinishBtn = true
           this.showFinishBtn = true
+          this.accountDetailBtn = false
+          this.showUploadBtn = true
           break
-        case '作废':
+        case 'invalid':
           this.invalidBtn = false
           this.editBtn = true
           this.printBtn = true
           this.disableReferBtn = true
-          this.finishBtn = true
+          this.cancelFinishBtn = true
           this.showFinishBtn = true
           this.showInvalidBtn = false
           break
-        case '已完成':
+        case 'finish':
           this.invalidBtn = true
           this.showInvalidBtn = true
           this.editBtn = true
           this.printBtn = false
           this.disableReferBtn = true
-          this.finishBtn = false
+          this.cancelFinishBtn = false
           this.showFinishBtn = false
+          this.accountDetailBtn = false
+          this.showUploadBtn = false
       }
     },
     printPdf () {
@@ -631,7 +658,6 @@ export default {
                 classes: 'mynotifyfont',
                 message: result.message
               })
-              console.log(result)
             }
           } else {
             let blob = new Blob([resp], { type: 'application/pdf' })
@@ -643,7 +669,7 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '请选择要打印预览的分录'
         })
@@ -652,18 +678,97 @@ export default {
           color: 'red',
           icon: 'error',
           position: 'center',
-          timeout: 2500,
+          timeout: 2000,
           classes: 'mynotifyfont',
           message: '一次只能打印预览一条分录'
+        })
+      }
+    },
+    uploadFile () {
+      if (this.selectRows.length === 1) {
+        if (this.selectRows[0].status === 'submit') {
+          this.accountDetail.id = this.selectRows[0].id
+          this.accountDetail.status = this.selectRows[0].uploadFileNum
+          this.showUploadFileForm = true
+        } else {
+          this.$q.notify({
+            color: 'red',
+            icon: 'error',
+            position: 'center',
+            timeout: 2000,
+            classes: 'mynotifyfont',
+            message: '申请表还没提交无法上传'
+          })
+        }
+      } else {
+        this.$q.notify({
+          color: 'red',
+          icon: 'error',
+          position: 'center',
+          timeout: 2000,
+          classes: 'mynotifyfont',
+          message: '请选择要上传的申请表'
+        })
+      }
+    },
+    viewFile () {
+      if (this.selectRows.length === 1) {
+        service({
+          url: 'api/account/viewForm',
+          method: 'get',
+          params: { id: this.selectRows[0].id },
+          responseType: 'blob'
+        }).then(resp => {
+          let _this = this
+          if (resp.type === 'application/json') {
+            let blob = new Blob([resp], { type: 'application/json' })
+            let read = new FileReader()
+            read.readAsText(blob)
+            read.onload = function () {
+              let result = JSON.parse(read.result + '')
+              _this.$q.notify({
+                color: 'red',
+                icon: 'error',
+                position: 'center',
+                timeout: 2000,
+                classes: 'mynotifyfont',
+                message: result.message
+              })
+            }
+          } else {
+            let blob = new Blob([resp], { type: 'application/pdf' })
+            window.open(URL.createObjectURL(blob))
+          }
+        })
+      } else if (this.selectRows.length === 0) {
+        this.$q.notify({
+          color: 'red',
+          icon: 'error',
+          position: 'center',
+          timeout: 2000,
+          classes: 'mynotifyfont',
+          message: '请选择要查看文件的分录'
+        })
+      } else {
+        this.$q.notify({
+          color: 'red',
+          icon: 'error',
+          position: 'center',
+          timeout: 2000,
+          classes: 'mynotifyfont',
+          message: '一次只能查看一条分录的文件'
         })
       }
     }
   },
   watch: {
     searchWord () {
-      console.log('监控搜索关键字')
       switch (this.searchWord.value) {
         case 'name':
+          this.showFixSearch = false
+          this.pagination.searchContent = ''
+          break
+        case 'id':
           this.showFixSearch = false
           this.pagination.searchContent = ''
           break
@@ -680,7 +785,7 @@ export default {
         case 'status':
           this.showFixSearch = true
           this.pagination.searchContent = ''
-          this.FixSearchOptions = ['暂存', '已提交', '已完成', '作废']
+          this.FixSearchOptions = [{ label: '暂存', value: 'save' }, { label: '已提交', value: 'submit' }, { label: '已完成', value: 'finish' }, { label: '作废', value: 'invalid' }]
           break
         case 'date':
           this.showFixSearch = false

@@ -25,7 +25,7 @@ module.exports = function (ctx) {
 
     framework: {
       // all: true, // --- includes everything; for dev only!
-
+      lang: 'zh-hans',
       components: [
         'QLayout',
         'QHeader',
@@ -67,7 +67,8 @@ module.exports = function (ctx) {
         'QBar',
         'QDate',
         'QPopupProxy',
-        'QTooltip'
+        'QTooltip',
+        'QUploader'
       ],
 
       directives: [

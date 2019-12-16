@@ -36,7 +36,7 @@ service.interceptors.response.use(response => {
   return resp
 }, error => {
   console.log('responseError:')
-  console.log(error.response)
+  console.log(error.response.data)
   if (error.response.data.code === 40002 || error.response.data.code === 40005) {
     localStorage.clear()
     Router.push('/login')

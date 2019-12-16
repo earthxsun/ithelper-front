@@ -13,9 +13,9 @@
         <q-separator/>
         <q-form @submit="submitForm">
           <q-card-section v-for="(d,index) in formRows" :key="index" class="row q-gutter-sm">
-            <q-select v-model="formData.sysName[index]" :options="sysNameOptions" prefix="系统名称：" :hint="defaultPwd[index]" dense :disable="notUse"></q-select>
+            <q-select v-model="formData.sysName[index]" :options="sysNameOptions" prefix="系统名称：" :hint="defaultPwd[index]" dense :disable="notUse" ></q-select>
             <br>
-            <q-input v-model="formData.accountName[index]" prefix="账号名称：" placeholder="请输入账号名称" style="width:300px" :hint="pwdTips[index]" dense :disable="notUse"
+            <q-input v-model="formData.accountName[index]" prefix="账号名称：" placeholder="请输入账号名称" style="width:300px" :hint="pwdTips[index]" dense :readonly="notUse"
                      :rules="[val => val !== null && val !== '' || '此为必填项']"/>
           </q-card-section>
           <q-separator/>
@@ -55,21 +55,28 @@ export default {
     },
     reduceRow () {
       this.formRows.pop()
-      this.formData.sysName.pop()
-      this.formData.accountName.pop()
+      let lastSysName = this.formData.sysName.pop()
+      if (this.formData.sysName.length > 0) {
+        service.get('api/accountName/delOne', {
+          params: {
+            accountId: this.formData.id,
+            sysName: lastSysName
+          }
+        }).then(resp => {
+          console.log(resp)
+        })
+      }
     },
     loadData () {
-      console.log('loadData')
       this.systemDetails = this.systemAccounts
       for (let r of this.systemDetails) {
         this.sysNameOptions.push(r.name)
       }
       let role = this.$store.state.application.role
-      this.notUse = this.accountDetail.status === '已完成' || role !== '管理员'
-      this.notReduceRow = this.accountDetail.status === '已完成' || this.accountDetail.status === '已提交'
+      this.notUse = this.accountDetail.status === 'finish' || role !== '管理员'
+      this.notReduceRow = this.accountDetail.status === 'finish' || this.accountDetail.status === '已提交'
     },
     loadFormData () {
-      console.log(this.accountDetail)
       service.get('api/accountName/getOne', {
         params: {
           accountId: this.formData.id
@@ -78,7 +85,6 @@ export default {
         const _this = this
         const accountNames = resp.data
         this.formRows = []
-        console.log(accountNames)
         if (accountNames.length > 0) {
           for (let i = 0; i < resp.data.length; i++) {
             this.formRows.push({})
@@ -104,7 +110,6 @@ export default {
         sysName: this.formData.sysName,
         accountName: this.formData.accountName
       }).then(resp => {
-        console.log(resp)
         if (resp.code === 99999) {
           this.$q.notify({
             color: 'green',

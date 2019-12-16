@@ -69,6 +69,7 @@ export default {
             localStorage.setItem('org', JSON.stringify(resp.data.data.org))
             this.$store.commit('application/SET_USERNAME', resp.data.data.username)
             this.$store.commit('application/SET_ROLE', resp.data.data.role)
+            this.$store.commit('application/SET_TOKEN', resp.data.data.token)
             this.$router.push('/index')
           } else {
             this.isShow = true

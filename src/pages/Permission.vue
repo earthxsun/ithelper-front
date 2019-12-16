@@ -27,47 +27,30 @@
     <br>
     <br>
     <button @click="getSome">GetSomething</button>
-    <div class="text-left" style="word-wrap: break-word;white-space: normal">
-                {formData={"name":"王小龙","group":"C1组","dept":"关务综合","post":"财务","email":"huangxiaolong@szjuhang.com","tel":"15715513322","reason":"员工新入职","sysOrg1":["物流","综合","东诚"],"sysPerm1":["报关操作","计费管理","往来单位管理"],"sysOrg2":["物流","综合","东诚"],"sysPerm2":["报关作业操作","报关作业审核","财务权限","报价管理","合作伙伴管理"],"sysOrg3":["关务中心","关务综合","东诚报关部"],"sysPerm3":["会计","出纳","费用报销"],"otherPerm":"总公司代收付款","applicationType":"新增账号","system1":"关贸云","system2":"ERP","system3":"金蝶EAS","id":[]}, method=add}
+    <br>
+    <br>
+    <div class="q-pa-md">
+      <q-table
+        title="Treats"
+        :data="data"
+        :columns="columns"
+        row-key="id"
+        :pagination.sync="pagination"
+        :loading="loading"
+        :filter="filter"
+        @request="onRequest"
+        binary-state-sort
+      >
+        <template v-slot:top-right>
+          <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+
+      </q-table>
     </div>
-    <br>
-    <br>
-<!--    <q-table-->
-<!--      title="Treats"-->
-<!--      :data="data"-->
-<!--      :columns="columns"-->
-<!--      row-key="name"-->
-<!--      selection="single"-->
-<!--      :selected.sync="selected"-->
-<!--    >-->
-
-<!--      <template v-slot:body="props">-->
-<!--        <q-tr :props="props">-->
-<!--          <q-td auto-width>-->
-<!--            <q-checkbox dense v-model="props.selected"/>-->
-<!--          </q-td>-->
-<!--          <q-td key="desc" :props="props">-->
-<!--            {{ props.row.name }}-->
-<!--            <q-btn dense round flat :icon="props.expand ? 'arrow_drop_up' : 'arrow_drop_down'" @click="props.expand = !props.expand" />-->
-<!--          </q-td>-->
-<!--          <q-td key="calories" :props="props">{{ props.row.calories }}</q-td>-->
-<!--          <q-td key="fat" :props="props">{{ props.row.fat }}</q-td>-->
-<!--          <q-td key="carbs" :props="props">{{ props.row.carbs }}</q-td>-->
-<!--          <q-td key="protein" :props="props">{{ props.row.protein }}</q-td>-->
-<!--          <q-td key="sodium" :props="props">{{ props.row.sodium }}</q-td>-->
-<!--          <q-td key="calcium" :props="props">{{ props.row.calcium }}</q-td>-->
-
-<!--        </q-tr>-->
-<!--        <q-tr v-show="props.expand" :props="props">-->
-<!--          <q-td colspan="100%">-->
-<!--            <div class="text-left" style="word-wrap: break-word;white-space: normal">-->
-<!--                {formData={"name":"王小龙","group":"C1组","dept":"关务综合","post":"财务","email":"huangxiaolong@szjuhang.com","tel":"15715513322","reason":"员工新入职","sysOrg1":["物流","综合","东诚"],"sysPerm1":["报关操作","计费管理","往来单位管理"],"sysOrg2":["物流","综合","东诚"],"sysPerm2":["报关作业操作","报关作业审核","财务权限","报价管理","合作伙伴管理"],"sysOrg3":["关务中心","关务综合","东诚报关部"],"sysPerm3":["会计","出纳","费用报销"],"otherPerm":"总公司代收付款","applicationType":"新增账号","system1":"关贸云","system2":"ERP","system3":"金蝶EAS","id":[]}, method=add}-->
-<!--            </div>-->
-<!--          </q-td>-->
-<!--        </q-tr>-->
-<!--      </template>-->
-
-<!--    </q-table>-->
   </div>
 </template>
 
@@ -82,10 +65,20 @@ export default {
     return {
       checked: true,
       isShow: false,
+      multiple: null,
       counter: [],
       sys: [],
       ncontent: [],
       selected: [],
+      filter: '',
+      loading: false,
+      pagination: {
+        sortBy: 'name',
+        descending: false,
+        page: 1,
+        rowsPerPage: 3,
+        rowsNumber: 10
+      },
       columns: [
         {
           name: 'desc',
@@ -104,110 +97,52 @@ export default {
         { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
         { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
       ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
-        }
+      data: [],
+      original: [
+        { id: 1, name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, sodium: 87, calcium: '14%', iron: '1%' },
+        { id: 2, name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, sodium: 129, calcium: '8%', iron: '1%' },
+        { id: 3, name: 'Eclair', calories: 262, fat: 16.0, carbs: 23, protein: 6.0, sodium: 337, calcium: '6%', iron: '7%' },
+        { id: 4, name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, sodium: 413, calcium: '3%', iron: '8%' },
+        { id: 5, name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, sodium: 327, calcium: '7%', iron: '16%' },
+        { id: 6, name: 'Jelly bean', calories: 375, fat: 0.0, carbs: 94, protein: 0.0, sodium: 50, calcium: '0%', iron: '0%' },
+        { id: 7, name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, sodium: 38, calcium: '0%', iron: '2%' },
+        { id: 8, name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, sodium: 562, calcium: '0%', iron: '45%' },
+        { id: 9, name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, sodium: 326, calcium: '2%', iron: '22%' },
+        { id: 10, name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, sodium: 54, calcium: '12%', iron: '6%' },
+        { id: 11, name: 'Frozen Yogurt-1', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, sodium: 87, calcium: '14%', iron: '1%' },
+        { id: 12, name: 'Ice cream sandwich-1', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, sodium: 129, calcium: '8%', iron: '1%' },
+        { id: 13, name: 'Eclair-1', calories: 262, fat: 16.0, carbs: 23, protein: 6.0, sodium: 337, calcium: '6%', iron: '7%' },
+        { id: 14, name: 'Cupcake-1', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, sodium: 413, calcium: '3%', iron: '8%' },
+        { id: 15, name: 'Gingerbread-1', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, sodium: 327, calcium: '7%', iron: '16%' },
+        { id: 16, name: 'Jelly bean-1', calories: 375, fat: 0.0, carbs: 94, protein: 0.0, sodium: 50, calcium: '0%', iron: '0%' },
+        { id: 17, name: 'Lollipop-1', calories: 392, fat: 0.2, carbs: 98, protein: 0, sodium: 38, calcium: '0%', iron: '2%' },
+        { id: 18, name: 'Honeycomb-1', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, sodium: 562, calcium: '0%', iron: '45%' },
+        { id: 19, name: 'Donut-1', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, sodium: 326, calcium: '2%', iron: '22%' },
+        { id: 20, name: 'KitKat-1', calories: 518, fat: 26.0, carbs: 65, protein: 7, sodium: 54, calcium: '12%', iron: '6%' },
+        { id: 21, name: 'Frozen Yogurt-2', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, sodium: 87, calcium: '14%', iron: '1%' },
+        { id: 22, name: 'Ice cream sandwich-2', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, sodium: 129, calcium: '8%', iron: '1%' },
+        { id: 23, name: 'Eclair-2', calories: 262, fat: 16.0, carbs: 23, protein: 6.0, sodium: 337, calcium: '6%', iron: '7%' },
+        { id: 24, name: 'Cupcake-2', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, sodium: 413, calcium: '3%', iron: '8%' },
+        { id: 25, name: 'Gingerbread-2', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, sodium: 327, calcium: '7%', iron: '16%' },
+        { id: 26, name: 'Jelly bean-2', calories: 375, fat: 0.0, carbs: 94, protein: 0.0, sodium: 50, calcium: '0%', iron: '0%' },
+        { id: 27, name: 'Lollipop-2', calories: 392, fat: 0.2, carbs: 98, protein: 0, sodium: 38, calcium: '0%', iron: '2%' },
+        { id: 28, name: 'Honeycomb-2', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, sodium: 562, calcium: '0%', iron: '45%' },
+        { id: 29, name: 'Donut-2', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, sodium: 326, calcium: '2%', iron: '22%' },
+        { id: 30, name: 'KitKat-2', calories: 518, fat: 26.0, carbs: 65, protein: 7, sodium: 54, calcium: '12%', iron: '6%' },
+        { id: 31, name: 'Frozen Yogurt-3', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, sodium: 87, calcium: '14%', iron: '1%' },
+        { id: 32, name: 'Ice cream sandwich-3', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, sodium: 129, calcium: '8%', iron: '1%' },
+        { id: 33, name: 'Eclair-3', calories: 262, fat: 16.0, carbs: 23, protein: 6.0, sodium: 337, calcium: '6%', iron: '7%' },
+        { id: 34, name: 'Cupcake-3', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, sodium: 413, calcium: '3%', iron: '8%' },
+        { id: 35, name: 'Gingerbread-3', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, sodium: 327, calcium: '7%', iron: '16%' },
+        { id: 36, name: 'Jelly bean-3', calories: 375, fat: 0.0, carbs: 94, protein: 0.0, sodium: 50, calcium: '0%', iron: '0%' },
+        { id: 37, name: 'Lollipop-3', calories: 392, fat: 0.2, carbs: 98, protein: 0, sodium: 38, calcium: '0%', iron: '2%' },
+        { id: 38, name: 'Honeycomb-3', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, sodium: 562, calcium: '0%', iron: '45%' },
+        { id: 39, name: 'Donut-3', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, sodium: 326, calcium: '2%', iron: '22%' },
+        { id: 40, name: 'KitKat-3', calories: 518, fat: 26.0, carbs: 65, protein: 7, sodium: 54, calcium: '12%', iron: '6%' }
       ],
       name: '使用人名称',
-      options: ['序号', '作者', '标题', '日期', 'Oracle', '巨航总公司']
+      options: ['序号', '作者', '标题', '日期', 'Oracle', '巨航总公司'],
+      mydata: [{ name: 'my-field', value: 'my-value' }]
     }
   },
   // components: { finishForm },
@@ -215,7 +150,7 @@ export default {
     ...mapActions('application', ['addnum']),
     loadData () {
       service({
-        url: 'api/account/print',
+        url: 'api/test/printpdf',
         method: 'get',
         params: {
           id: 1
@@ -224,7 +159,7 @@ export default {
       }).then(resp => {
         console.log(resp)
         let blob = new Blob([resp], { type: 'application/pdf' })
-        console.log(blob)
+        // console.log(blob)
         // let filename = '123.pdf'
         // let link = document.createElement('a')
         // link.download = filename
@@ -236,18 +171,117 @@ export default {
       })
     },
     userData () {
-      console.log('----userData----')
-      console.log(a)
-      add()
-      console.log(a)
+      // console.log('----userData----')
+      // console.log(a)
+      // add()
+      console.log(this.multiple)
     },
     branchData () {
       service.get('api/test/gettest').then(resp => {
         console.log(resp)
       })
     },
-    getSome () {
-      console.log(this.ncontent + '--' + this.sys)
+    checkFileType (files) {
+      return files.filter(file => file.type === 'application/pdf')
+    },
+    getSome (info) {
+      console.log(info)
+      this.$q.notify({
+        color: 'red',
+        icon: 'error',
+        position: 'center',
+        timeout: 2000,
+        message: '上传失败，请联系管理员'
+      })
+    },
+    onRequest (props) {
+      console.log(props)
+      let { page, rowsPerPage, rowsNumber, sortBy, descending } = props.pagination
+      let filter = props.filter
+
+      this.loading = true
+
+      // emulate server
+      setTimeout(() => {
+        // update rowsCount with appropriate value
+        this.pagination.rowsNumber = this.getRowsNumberCount(filter)
+
+        // get all rows if "All" (0) is selected
+        let fetchCount = rowsPerPage === 0 ? rowsNumber : rowsPerPage
+
+        // calculate starting row of data
+        let startRow = (page - 1) * rowsPerPage
+
+        // fetch data from "server"
+        let returnedData = this.fetchFromServer(startRow, fetchCount, filter, sortBy, descending)
+
+        // clear out existing data and add new
+        this.data.splice(0, this.data.length, ...returnedData)
+
+        // don't forget to update local pagination object
+        this.pagination.page = page
+        this.pagination.rowsPerPage = rowsPerPage
+        this.pagination.sortBy = sortBy
+        this.pagination.descending = descending
+
+        // ...and turn of loading indicator
+        this.loading = false
+      }, 1500)
+    },
+    // emulate ajax call
+    // SELECT * FROM ... WHERE...LIMIT...
+    fetchFromServer (startRow, count, filter, sortBy, descending) {
+      let data = []
+
+      if (!filter) {
+        data = this.original.slice(startRow, startRow + count)
+      } else {
+        let found = 0
+        for (let index = startRow, items = 0; index < this.original.length && items < count; ++index) {
+          let row = this.original[index]
+          // match filter?
+          if (!row['name'].includes(filter)) {
+            // get a different row, until one is found
+            continue
+          }
+          ++found
+          if (found >= startRow) {
+            data.push(row)
+            ++items
+          }
+        }
+      }
+
+      // handle sortBy
+      if (sortBy) {
+        data.sort((a, b) => {
+          let x = descending ? b : a
+          let y = descending ? a : b
+          if (sortBy === 'desc') {
+            // string sort
+            return x[sortBy] > y[sortBy] ? 1 : x[sortBy] < y[sortBy] ? -1 : 0
+          } else {
+            // numeric sort
+            return parseFloat(x[sortBy]) - parseFloat(y[sortBy])
+          }
+        })
+      }
+
+      return data
+    },
+
+    // emulate 'SELECT count(*) FROM ...WHERE...'
+    getRowsNumberCount (filter) {
+      if (!filter) {
+        return this.original.length
+      }
+      let count = 0
+      this.original.forEach((treat) => {
+        if (treat['name'].includes(filter)) {
+          ++count
+        }
+      })
+      return count
     },
     getfinger () {
       let _store = this.$store
@@ -266,6 +300,12 @@ export default {
     getRole: function () {
       return this.$store.state.application.role
     }
+  },
+  mounted () {
+    this.onRequest({
+      pagination: this.pagination,
+      filter: undefined
+    })
   }
 }
 </script>

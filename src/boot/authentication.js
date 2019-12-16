@@ -8,7 +8,7 @@ export default ({
   Vue
 }) => {
   const whiteList = ['/login']
-  console.log('生成指纹1')
+  // console.log('生成指纹1')
   finger(store)
   router.beforeEach((to, from, next) => {
     // Now you need to add your authentication logic here, like calling an API endpoint
@@ -18,7 +18,7 @@ export default ({
     let userRoutes = localStorage.getItem('userRoutes')
     let expireTime = new Date(localStorage.getItem('expTime'))
     if (store.state.application.finger.length === 0) {
-      console.log('生成指纹2')
+      // console.log('生成指纹2')
       finger(store)
     }
     if (new Date() > expireTime) {
@@ -28,7 +28,7 @@ export default ({
       clearLocalStorage()
     }
     let dynamicRoutes = store.state.application.accessRoutes
-    console.log('守护路由')
+    // console.log('守护路由')
     // console.log(username + '  ' + token + '  ' + userRoutes)
     if (username && token && !isExpire) {
       if (!dynamicRoutes.length) {
@@ -36,11 +36,11 @@ export default ({
           service.post('/api/login/getRoutes', {
             username: username
           }).then(resp => {
-            console.log('获取路由')
+            // console.log('获取路由')
             let routerStr = JSON.stringify(resp)
             localStorage.setItem('userRoutes', routerStr)
             dynamicRoutes = initRouters(routerStr)
-            console.log('初始化路由')
+            // console.log('初始化路由')
             store.commit('application/generateRoutes', dynamicRoutes)
             router.addRoutes(dynamicRoutes)
             next()
@@ -48,7 +48,7 @@ export default ({
             console.log(error)
           })
         } else {
-          console.log('添加动态路由')
+          // console.log('添加动态路由')
           dynamicRoutes = initRouters(userRoutes)
           store.commit('application/generateRoutes', dynamicRoutes)
           router.addRoutes(dynamicRoutes)
@@ -62,10 +62,10 @@ export default ({
       }
     } else {
       if (whiteList.indexOf(to.path) !== -1) {
-        console.log('白名单' + to.path)
+        // console.log('白名单' + to.path)
         next()
       } else {
-        console.log('没有找到token')
+        // console.log('没有找到token')
         next('/login')
       }
     }
@@ -103,6 +103,6 @@ function finger (obj) {
     let values = components.map(function (component) { return component.value })
     let murmur = Fingerprint2.x64hash128(values.join(''), 31)
     obj.commit('application/SET_FINGER', murmur)
-    console.log('finger():' + obj.state.application.finger)
+    // console.log('finger():' + obj.state.application.finger)
   })
 }
